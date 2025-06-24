@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quest for Water</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Charity: water branding header -->
+  <div id="branding-header">
+    <img src="img/charitywater.png" alt="Charity: water logo" id="cw-logo">
+    <span id="branding-title">Quest for Water</span>
+  </div>
+  <div id="game-container">
+    <div class="ui">
+      <button id="start-btn">Start</button>
+      <button id="reset-btn">Reset</button>
+      <div class="scoreboard">
+        <span>Water: <span id="water">100</span>%</span>
+        <span>Steps: <span id="steps">0</span></span>
+        <span>Time Left: <span id="time">30</span>s</span>
+      </div>
+    </div>
+    <div class="game-flex">
+      <canvas id="game" width="300" height="300"></canvas>
+      <!-- Arrow key images for movement -->
+      <div class="arrow-images polished-arrows">
+        <button type="button" onclick="window.move('ArrowUp')" aria-label="Up Arrow" class="arrow-btn arrow-up">
+          <svg width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="#FFC907" stroke="#2E9DF7" stroke-width="3"/><polygon points="24,12 34,28 14,28" fill="#2E9DF7"/></svg>
+        </button>
+        <div style="display: flex; flex-direction: row;">
+          <button type="button" onclick="window.move('ArrowLeft')" aria-label="Left Arrow" class="arrow-btn arrow-left">
+            <svg width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="#FFC907" stroke="#2E9DF7" stroke-width="3"/><polygon points="12,24 28,14 28,34" fill="#2E9DF7"/></svg>
+          </button>
+          <button type="button" onclick="window.move('ArrowDown')" aria-label="Down Arrow" class="arrow-btn arrow-down">
+            <svg width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="#FFC907" stroke="#2E9DF7" stroke-width="3"/><polygon points="24,36 34,20 14,20" fill="#2E9DF7"/></svg>
+          </button>
+          <button type="button" onclick="window.move('ArrowRight')" aria-label="Right Arrow" class="arrow-btn arrow-right">
+            <svg width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="#FFC907" stroke="#2E9DF7" stroke-width="3"/><polygon points="36,24 20,14 20,34" fill="#2E9DF7"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
+
