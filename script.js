@@ -11,6 +11,7 @@ const resetBtn = document.getElementById('reset-btn');
 const waterDisplay = document.getElementById('water');
 const stepsDisplay = document.getElementById('steps');
 const timeDisplay = document.getElementById('time');
+const difficultySelect = document.getElementById('difficulty');
 
 let maze = [];
 let player = { x: 0, y: 0 };
@@ -40,17 +41,31 @@ function isNearStartOrHome(x, y) {
 
 function initMaze() {
   maze = [];
+  // Get selected difficulty
+  const difficulty = difficultySelect ? difficultySelect.value : 'easy';
+  // Set dirty tile chance based on difficulty
+  let dirtyChance = 0.15; // default easy
+  if (difficulty === 'normal') dirtyChance = 0.28;
+  if (difficulty === 'hard') dirtyChance = 0.45;
   for (let y = 0; y < size; y++) {
     let row = [];
     for (let x = 0; x < size; x++) {
       // Only place obstacles if not near start or home
-      if (!isNearStartOrHome(x, y) && Math.random() < 0.2) {
+      if (!isNearStartOrHome(x, y) && Math.random() < dirtyChance) {
         row.push('dirty');
       } else {
         row.push('clean');
       }
     }
     maze.push(row);
+  }
+  // For hard mode, make sure there is a path:
+  // Clear the top row and rightmost column
+  if (difficulty === 'hard') {
+    for (let i = 0; i < size; i++) {
+      maze[0][i] = 'clean'; // Top row
+      maze[i][size - 1] = 'clean'; // Rightmost column
+    }
   }
   maze[0][0] = 'clean'; // Start
   maze[home.y][home.x] = 'home'; // Home
@@ -95,12 +110,28 @@ function updateUI() {
   timeDisplay.textContent = time;
 }
 
+// Update timer display when difficulty changes
+if (difficultySelect) {
+  difficultySelect.addEventListener('change', function() {
+    // Set the time based on selected difficulty
+    if (difficultySelect.value === 'easy') time = 30;
+    else if (difficultySelect.value === 'normal') time = 20;
+    else if (difficultySelect.value === 'hard') time = 10;
+    updateUI(); // Update the display
+  });
+}
+
 function startGame() {
+  // Get selected difficulty
+  const difficulty = difficultySelect ? difficultySelect.value : 'easy';
   initMaze();
   player = { x: 0, y: 0 };
   steps = 0;
   water = 100;
-  time = 30;
+  // Set timer based on difficulty
+  if (difficulty === 'easy') time = 30;
+  else if (difficulty === 'normal') time = 20;
+  else if (difficulty === 'hard') time = 10;
   gameRunning = true;
   startBtn.textContent = 'Game in progress...';
   startBtn.disabled = true;
@@ -116,17 +147,162 @@ function startGame() {
   updateUI();
 }
 
+// Milestone messages for steps
+const milestones = [
+  { steps: 3, message: "Great start! Keep going!" },
+  { steps: 6, message: "Halfway there! You can do it!" },
+  { steps: 9, message: "Almost home! Stay focused!" }
+];
+let milestonesShown = [];
+
+// Show a milestone message in the popup div (non-blocking)
+function showMilestoneMessage(message) {
+  const popup = document.getElementById('milestone-popup');
+  popup.textContent = message;
+  popup.style.display = 'block';
+  popup.style.opacity = '1';
+  // Hide after 2.5 seconds
+  setTimeout(() => {
+    popup.style.opacity = '0';
+    setTimeout(() => {
+      popup.style.display = 'none';
+    }, 300);
+  }, 2500);
+}
+
+function movePlayer(direction) {
+  // Only move if the game is running
+  if (!gameRunning) return;
+
+  // Store the player's current position
+  const oldX = player.x;
+  const oldY = player.y;
+
+  // Calculate the new position based on the direction
+  let newX = oldX;
+  let newY = oldY;
+
+  if (direction === 'ArrowUp' && oldY > 0) {
+    newY--;
+  } else if (direction === 'ArrowDown' && oldY < size - 1) {
+    newY++;
+  } else if (direction === 'ArrowLeft' && oldX > 0) {
+    newX--;
+  } else if (direction === 'ArrowRight' && oldX < size - 1) {
+    newX++;
+  }
+
+  // If the new position is the same as the old, don't count as a move
+  if (newX === oldX && newY === oldY) {
+    // No movement, so do nothing
+    return;
+  }
+
+  // Check if the new tile is a wall (not used in this game, but for future-proofing)
+  if (maze[newY][newX] === 'wall') {
+    // Can't move into a wall
+    return;
+  }
+
+  // Increase the step count only if the player actually moves
+  steps++;
+
+  // Check for milestone messages
+  milestones.forEach((milestone, i) => {
+    if (steps === milestone.steps && !milestonesShown[i]) {
+      showMilestoneMessage(milestone.message);
+      milestonesShown[i] = true;
+    }
+  });
+
+  // If the player steps on a dirty tile, lose water and reset to start
+  if (maze[newY][newX] === 'dirty') {
+    water -= 15;
+    // Remove the dirty water drop after collision
+    maze[newY][newX] = 'clean';
+    // Animate to the dirty tile, then reset to start
+    animatePlayerMove(oldX, oldY, newX, newY, function() {
+      player.x = 0;
+      player.y = 0;
+      drawMaze();
+      updateUI();
+    });
+    updateUI();
+    return;
+  }
+
+  // Animate the player moving to the new position
+  animatePlayerMove(oldX, oldY, newX, newY, function() {
+    // Update the player's position
+    player.x = newX;
+    player.y = newY;
+    // If the player reaches home, end the game
+    if (newX === home.x && newY === home.y) {
+      endGame('You made it home!');
+    }
+    // Redraw the maze and update the UI
+    drawMaze();
+    updateUI();
+  });
+}
+
+function endGame(message) {
+  clearInterval(timer);
+  gameRunning = false;
+  if (message === 'You made it home!') {
+    showWinPopup();
+    startBtn.textContent = 'Start';
+    startBtn.disabled = false;
+    return;
+  }
+  alert(message);
+  startBtn.textContent = 'Start';
+  startBtn.disabled = false;
+}
+
+// Store the most recent game record
+let mostRecentRecord = {
+  time: null,
+  difficulty: '-',
+  water: '-',
+  steps: '-'
+};
+
+// Update the scoreboard table to show the most recent game
+function updateScoreboard() {
+  document.getElementById('recent-time').textContent = mostRecentRecord.time !== null ? mostRecentRecord.time + 's' : '-';
+  document.getElementById('recent-difficulty').textContent = mostRecentRecord.difficulty;
+  document.getElementById('recent-water').textContent = mostRecentRecord.water;
+  document.getElementById('recent-steps').textContent = mostRecentRecord.steps;
+}
+
 function showWinPopup() {
+  // Calculate how long the user took to finish the game
+  let startingTime = 30;
+  if (difficultySelect && difficultySelect.value === 'normal') startingTime = 20;
+  if (difficultySelect && difficultySelect.value === 'hard') startingTime = 10;
+  const playerTime = startingTime - time;
+  const playerDifficulty = difficultySelect ? difficultySelect.value : '-';
+  const playerWater = water;
+  const playerSteps = steps;
+
+  // Update the most recent record
+  mostRecentRecord.time = playerTime;
+  mostRecentRecord.difficulty = playerDifficulty;
+  mostRecentRecord.water = playerWater + '%';
+  mostRecentRecord.steps = playerSteps;
+  updateScoreboard();
+
   // Create the popup overlay
   const overlay = document.createElement('div');
   overlay.id = 'win-popup-overlay';
   overlay.innerHTML = `
+    <canvas id="fireworks-canvas"></canvas>
     <div class="win-popup">
       <h2>🎉 You made it home! 🎉</h2>
       <p>Congratulations! You completed the Quest for Water.</p>
       <button id="play-again-btn">Play Again</button>
       <a href="https://www.charitywater.org/" target="_blank" id="learn-more-btn">Learn more about charity: water</a>
-      <canvas id="fireworks-canvas"></canvas>
     </div>
   `;
   document.body.appendChild(overlay);
@@ -139,7 +315,7 @@ function showWinPopup() {
   fireworksCanvas.style.left = '0';
   fireworksCanvas.style.top = '0';
   fireworksCanvas.style.pointerEvents = 'none';
-  fireworksCanvas.style.zIndex = '1001';
+  fireworksCanvas.style.zIndex = '1000'; // Lower than popup
   startFireworks(fireworksCanvas);
 
   // Play again button
@@ -194,80 +370,53 @@ function startFireworks(canvas) {
   animate();
 }
 
-function endGame(message) {
-  clearInterval(timer);
-  gameRunning = false;
-  if (message === 'You made it home!') {
-    showWinPopup();
-    startBtn.textContent = 'Start';
-    startBtn.disabled = false;
-    return;
+// Helper function to animate player movement
+function animatePlayerMove(oldX, oldY, newX, newY, callback) {
+  // Animation duration in milliseconds
+  const duration = 150;
+  const startTime = performance.now();
+
+  function animate(now) {
+    // Calculate how far along the animation is (0 to 1)
+    const elapsed = now - startTime;
+    const t = Math.min(elapsed / duration, 1);
+    // Calculate the current position between old and new
+    const currentX = oldX + (newX - oldX) * t;
+    const currentY = oldY + (newY - oldY) * t;
+    // Draw the maze without the player
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
+        if (maze[y][x] === 'dirty') {
+          ctx.fillStyle = 'saddlebrown';
+          ctx.fillRect(x * tileSize, y * tileSize, tileSize - 2, tileSize - 2);
+          ctx.drawImage(dropImg, x * tileSize, y * tileSize, tileSize - 2, tileSize - 2);
+        } else if (maze[y][x] === 'home') {
+          ctx.fillStyle = 'green';
+          ctx.fillRect(x * tileSize, y * tileSize, tileSize - 2, tileSize - 2);
+          ctx.font = `${tileSize - 8}px serif`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(homeEmoji, x * tileSize + tileSize / 2, y * tileSize + tileSize / 2);
+        } else {
+          ctx.fillStyle = 'lightgray';
+          ctx.fillRect(x * tileSize, y * tileSize, tileSize - 2, tileSize - 2);
+        }
+      }
+    }
+    // Draw the player at the animated position
+    ctx.font = `${tileSize - 8}px serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(playerEmoji, currentX * tileSize + tileSize / 2, currentY * tileSize + tileSize / 2);
+    if (t < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      // Animation done, call the callback
+      if (callback) callback();
+    }
   }
-  alert(message);
-  startBtn.textContent = 'Start';
-  startBtn.disabled = false;
-}
-
-// This function moves the player in the given direction
-function movePlayer(direction) {
-  // Only move if the game is running
-  if (!gameRunning) return;
-
-  // Store the player's current position
-  const oldX = player.x;
-  const oldY = player.y;
-
-  // Calculate the new position based on the direction
-  let newX = oldX;
-  let newY = oldY;
-
-  if (direction === 'ArrowUp' && oldY > 0) {
-    newY--;
-  } else if (direction === 'ArrowDown' && oldY < size - 1) {
-    newY++;
-  } else if (direction === 'ArrowLeft' && oldX > 0) {
-    newX--;
-  } else if (direction === 'ArrowRight' && oldX < size - 1) {
-    newX++;
-  }
-
-  // If the new position is the same as the old, don't count as a move
-  if (newX === oldX && newY === oldY) {
-    // No movement, so do nothing
-    return;
-  }
-
-  // Check if the new tile is a wall (not used in this game, but for future-proofing)
-  if (maze[newY][newX] === 'wall') {
-    // Can't move into a wall
-    return;
-  }
-
-  // Increase the step count only if the player actually moves
-  steps++;
-
-  // If the player steps on a dirty tile, lose water and reset to start
-  if (maze[newY][newX] === 'dirty') {
-    water -= 15;
-    player.x = 0;
-    player.y = 0;
-    drawMaze();
-    updateUI();
-    return;
-  }
-
-  // Update the player's position
-  player.x = newX;
-  player.y = newY;
-
-  // If the player reaches home, end the game
-  if (newX === home.x && newY === home.y) {
-    endGame('You made it home!');
-  }
-
-  // Redraw the maze and update the UI
-  drawMaze();
-  updateUI();
+  requestAnimationFrame(animate);
 }
 
 function resetGame() {
@@ -279,6 +428,7 @@ function resetGame() {
   time = 30; // Reset time to 30s
   startBtn.textContent = 'Start';
   startBtn.disabled = false;
+  milestonesShown = [];
   initMaze();
   drawMaze();
   updateUI();
@@ -315,3 +465,7 @@ resetBtn.addEventListener('click', resetGame);
 
 // Initialize maze and UI on load, and make sure Start is enabled
 resetGame(); // Initialize maze on load
+
+// Call updateScoreboard on load
+updateScoreboard();
+

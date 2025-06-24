@@ -14,16 +14,48 @@
   </div>
   <div id="game-container">
     <div class="ui">
+      <!-- Difficulty selector -->
+      <label for="difficulty" style="font-weight:bold; color:#2E9DF7; margin-right:8px;">Difficulty:</label>
+      <select id="difficulty">
+        <option value="easy">Easy</option>
+        <option value="normal">Normal</option>
+        <option value="hard">Hard</option>
+      </select>
+      <br><br>
       <button id="start-btn">Start</button>
       <button id="reset-btn">Reset</button>
       <div class="scoreboard">
-        <span>Water: <span id="water">100</span>%</span>
-        <span>Steps: <span id="steps">0</span></span>
-        <span>Time Left: <span id="time">30</span>s</span>
+        <span>💧 Water: <span id="water">100</span>%</span>
+        <span>👣 Steps: <span id="steps">0</span></span>
+        <span>⏰ Time Left: <span id="time">30</span>s</span>
       </div>
     </div>
+    <!-- Milestone message popup -->
+    <div id="milestone-popup" style="display:none;"></div>
     <div class="game-flex">
-      <canvas id="game" width="300" height="300"></canvas>
+      <!-- Scoreboard on the left -->
+      <div id="scoreboard-container">
+        <table id="scoreboard">
+          <caption style="font-weight:bold;color:#2E9DF7;">Most Recent Game</caption>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Difficulty</th>
+              <th>Water %</th>
+              <th>Steps</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td id="recent-time">-</td>
+              <td id="recent-difficulty">-</td>
+              <td id="recent-water">-</td>
+              <td id="recent-steps">-</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <canvas id="game" width="420" height="420"></canvas>
       <!-- Arrow key images for movement -->
       <div class="arrow-images polished-arrows">
         <button type="button" onclick="window.move('ArrowUp')" aria-label="Up Arrow" class="arrow-btn arrow-up">
@@ -43,6 +75,14 @@
       </div>
     </div>
   </div>
+  <!-- Footer with charity: water links -->
+  <footer class="charity-footer">
+    <span>Learn more at 
+      <a href="https://www.charitywater.org/" target="_blank">charity: water</a>
+      or
+      <a href="https://www.charitywater.org/donate" target="_blank">donate now</a>.
+    </span>
+  </footer>
   <script src="script.js"></script>
 </body>
 </html>

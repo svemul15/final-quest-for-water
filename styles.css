@@ -18,31 +18,35 @@ body {
   font-family: sans-serif;
   text-align: center;
   margin: 0;
-  background: #f0f0f0;
+  background: #e3f0ff; /* Solid light blue background */
 }
 
 #branding-header {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #FFC907;
-  padding: 10px 0 10px 0;
-  border-bottom: 4px solid #2E9DF7;
-  margin-bottom: 10px;
+  background: #fff455;
+  padding: 22px 0 22px 0; /* More spacious header */
+  border-bottom: 4px solid #59b0f7;
+  margin-bottom: 18px;
+  border-bottom-left-radius: 24px;
+  border-bottom-right-radius: 24px;
+  box-shadow: 0 4px 24px 0 rgba(46,157,247,0.10); /* Subtle shadow for modern look */
 }
 #cw-logo {
-  height: 48px;
-  margin-right: 16px;
-  background: #fff; /* White background */
-  border-radius: 12px; /* Rounded corners for a modern look */
-  border: 4px solid #fff; /* Thick white border */
+  height: 56px;
+  margin-right: 20px;
+  background: #fff;
+  border-radius: 16px;
+  border: 4px solid #fff;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08); /* Soft shadow for extra pop */
 }
 #branding-title {
-  font-size: 2rem;
+  font-size: 2.2rem;
   color: #2E9DF7;
   font-weight: bold;
-  letter-spacing: 2px;
+  letter-spacing: 2.5px;
+  text-shadow: 0 2px 8px rgba(46,157,247,0.08);
 }
 
 #game-container {
@@ -50,6 +54,10 @@ body {
   flex-direction: column;
   align-items: center;
   padding: 10px;
+  /* Modern rounded corners and box-shadow */
+  border-radius: 18px;
+  box-shadow: 0 6px 32px 0 rgba(30, 64, 175, 0.12), 0 1.5px 4px 0 rgba(255, 193, 7, 0.10);
+  background: #ffffffcc;
 }
 
 .game-flex {
@@ -57,6 +65,10 @@ body {
   flex-direction: row;
   align-items: flex-start;
   justify-content: center;
+  gap: 32px;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 canvas {
@@ -77,16 +89,16 @@ canvas {
   margin: 5px;
   padding: 10px 16px;
   font-size: 1.2rem;
-  background: #FFC907;
+  background: #fff455;
   border: 2px solid #2E9DF7;
   border-radius: 8px;
-  color: #2E9DF7;
+  color: #fff455;
   font-weight: bold;
   cursor: pointer;
   transition: background 0.2s;
 }
 .arrow-buttons button:hover {
-  background: #2E9DF7;
+  background: #fff455;
   color: #fff;
 }
 
@@ -98,22 +110,36 @@ canvas {
   margin-left: 16px;
 }
 .arrow-btn {
-  background: none;
+  background: #2E9DF7;
   border: none;
   padding: 0;
   margin: 8px;
   border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(46,157,247,0.08);
-  transition: box-shadow 0.2s, transform 0.1s;
+  box-shadow: 0 2px 8px rgba(46,157,247,0.10);
+  transition: box-shadow 0.2s, transform 0.1s, background 0.2s;
   cursor: pointer;
   outline: none;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.arrow-btn:active, .arrow-btn:focus {
-  box-shadow: 0 0 0 3px #2E9DF7;
-  transform: scale(0.96);
+.arrow-btn:hover, .arrow-btn:focus {
+  background: #50a6ec;
+  box-shadow: 0 0 0 3px #fff455;
+  transform: scale(1.07);
 }
 .arrow-btn svg {
   display: block;
+  width: 32px;
+  height: 32px;
+}
+.arrow-btn svg circle {
+  display: none;
+}
+.arrow-btn svg polygon {
+  fill: #fff;
 }
 
 .ui {
@@ -157,7 +183,7 @@ canvas {
   margin-bottom: 18px;
 }
 #play-again-btn {
-  background: #FFC907;
+  background: #fff455;
   color: #2E9DF7;
   border: none;
   border-radius: 8px;
@@ -185,7 +211,7 @@ canvas {
   transition: background 0.2s;
 }
 #learn-more-btn:hover {
-  background: #FFC907;
+  background: #fff455;
   color: #2E9DF7;
 }
 #fireworks-canvas {
@@ -198,6 +224,88 @@ canvas {
   opacity: 0.5; /* 50% opacity for fireworks */
 }
 
+#game {
+  border-radius: 12px;
+  box-shadow: 0 2px 12px 0 rgba(46, 157, 247, 0.15);
+  background: #e3f0ff;
+}
+
+#start-btn, #reset-btn {
+  background: #2E9DF7;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px 0 rgba(46, 157, 247, 0.10);
+  padding: 16px 36px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 10px 10px 10px 0;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+}
+#start-btn:hover, #reset-btn:hover {
+  background: #fff455;
+  color: #fff;
+  box-shadow: 0 4px 16px 0 rgba(46, 157, 247, 0.18);
+  transform: translateY(-2px) scale(1.04);
+}
+
+#milestone-popup {
+  position: fixed;
+  top: 80px;
+  right: 32px;
+  min-width: 180px;
+  max-width: 260px;
+  background: #2E9DF7;
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: bold;
+  padding: 18px 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(46,157,247,0.18);
+  z-index: 2000;
+  display: none;
+  transition: opacity 0.3s;
+}
+
+#scoreboard-container {
+  min-width: 240px;
+  max-width: 260px;
+  margin-right: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+#scoreboard {
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px 0 rgba(46, 157, 247, 0.10);
+  font-size: 1rem;
+  min-width: 220px;
+  margin-bottom: 16px;
+}
+#scoreboard caption {
+  margin-bottom: 6px;
+  font-size: 1.1rem;
+}
+#scoreboard th, #scoreboard td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #e3f0ff;
+  text-align: center;
+}
+#scoreboard th {
+  background: #e3f0ff;
+  color: #2E9DF7;
+  font-weight: bold;
+}
+#scoreboard td {
+  color: #159A48;
+  font-weight: bold;
+}
+#scoreboard tr:last-child td {
+  border-bottom: none;
+}
 @media (max-width: 600px) {
   .game-flex {
     flex-direction: column;
@@ -218,4 +326,60 @@ canvas {
   .arrow-btn {
     margin: 8px 4px;
   }
+  #milestone-popup {
+    right: 8px;
+    left: 8px;
+    top: 60px;
+    font-size: 1rem;
+    min-width: unset;
+    max-width: 90vw;
+    padding: 12px 10px;
+  }
 }
+@media (max-width: 900px) {
+  #scoreboard-container {
+    min-width: unset;
+    max-width: unset;
+    margin-right: 0;
+    margin-bottom: 16px;
+    justify-content: center;
+  }
+  .game-flex {
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+}
+
+.charity-footer {
+  background: #fff;
+  border: 3px solid #2E9DF7;
+  border-radius: 18px;
+  box-shadow: 0 -2px 16px 0 rgba(46,157,247,0.08);
+  color: #2E9DF7;
+  font-size: 1.1rem;
+  margin: 40px auto 0 auto;
+  padding: 22px 0 18px 0;
+  text-align: center;
+  max-width: 700px;
+}
+.charity-footer a {
+  color: #2E9DF7;
+  font-weight: bold;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+.charity-footer a[href*="donate"] {
+  color: #FFC907;
+}
+.charity-footer a:hover {
+  color: #159A48;
+}
+@media (max-width: 700px) {
+  .charity-footer {
+    max-width: 98vw;
+    font-size: 1rem;
+    padding: 16px 0 12px 0;
+  }
+}
+
