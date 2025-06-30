@@ -18,7 +18,7 @@ Secondary Colors:
 */
 
 body {
-  font-family: 'Montserrat', Arial, sans-serif;
+  font-family: 'Montserrat', Arial, sans-serif; /* uses font that matches most with the brand */
   text-align: center;
   margin: 0;
   background: #e3f0ff; /* Solid light blue background */
